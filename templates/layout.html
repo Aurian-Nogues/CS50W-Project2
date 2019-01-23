@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My Website!</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="{{ url_for('static', filename='index.js') }}"></script>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+
+                <!-- First section of the page-->
+                <div id="navbar" class="col-3">
+                    {% block body1 %}
+                    
+                    {% endblock %}
+
+                </div>
+                <!-- Second section of the page-->
+                <div id="chatroom" class="col">
+        {% block body2 %}
+        {% endblock %}
+      </div>
+    </div>
+    </body>
+</html>
