@@ -2,7 +2,7 @@ Git repository
 c:/users/auria/onedrive/desktop/'computer science'/cs50/project1
 
 cmd to start:
-cd C:\Users\auria\OneDrive\Desktop\Computer science\CS50\Project1
+cd C:\Users\auria\OneDrive\Desktop\Computer science\CS50\Project2
 set FLASK_APP=application.py
 set FLASK_DEBUG=1
 flask run
