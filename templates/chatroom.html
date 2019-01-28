@@ -5,16 +5,23 @@
 {% endblock %}
 
 {% block body1 %}
-<button onclick="hello()">Add channel</button>
-<p class="channel">Channel 1</p>
-<p class="channel">Channel 2</p>
-<p class="channel">Channel 3</p>
-<h1>Welcome!</h1>
+</br>
+
+<form method = "post">
+<h4 class="channels">{{session['user']}}</h4>
+<button id="logout" name="action" value="logout" class="btn btn-danger">Logout</button>
+</form>
+
+</br>
+
+<ul id="channels" class="channels">
+</ul>
+
+<button id="addChannel" class="btn btn-success">Add channel</button>
+
 {% endblock %}
 
 {% block body2 %}
 <h1>This is chatroom</h1>
-<p>{{session['user']}}</p>
-
 
 {% endblock %}

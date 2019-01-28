@@ -1,5 +1,5 @@
 Git repository
-c:/users/auria/onedrive/desktop/'computer science'/cs50/project1
+cd c:/users/auria/onedrive/desktop/'computer science'/cs50/project2
 
 cmd to start:
 cd C:\Users\auria\OneDrive\Desktop\Computer science\CS50\Project2

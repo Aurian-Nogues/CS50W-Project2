@@ -14,9 +14,17 @@ socketio = SocketIO(app)
 @app.route("/", methods= ['GET', 'POST'])
 def index():
     #session['logged_in'] = None
+
+    #here is for when you press a button
     if request.method == 'POST' :
-         session['user'] = request.form['username']
-         return render_template("chatroom.html")
+        #route from login button
+        if request.form['action'] == 'login':
+             session['user'] = request.form['username']
+             return render_template("chatroom.html")
+        elif request.form['action'] == 'logout':
+            session['logged_in'] = None
+            session['user'] = None
+            return render_template("index.html")
     
     else :
         if session.get('logged_in') == None:
