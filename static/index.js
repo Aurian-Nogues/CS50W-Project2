@@ -1,15 +1,16 @@
-/* function addChannel() {
-    const content = 'test'
-    document.querySelector('#channels').innerHTML = content;
-    alert('added channel');
-
-} */
-document.addEventListener('DOMContentLoaded', () => {
-    var button = document.getElementById('addChannel');
-    button.onclick = addChannel;
     /* alert('page loaded'); */
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    /* channel button */
+    document.getElementById('addChannel').onclick = addChannel;
+
+    /*login button */
+    document.getElementById('login').onclick = login;
 });
 
+
+/* Adds new channels to the list in the chatroom */
 function addChannel() {
 
     // create new object and assign user input to it
@@ -17,6 +18,13 @@ function addChannel() {
     const li = document.createElement('li');
     li.innerHTML = channel;
    
-    // add new channel to channel list
+    // append new channel to channel list
     document.querySelector('#channels').append(li);
+};
+
+function login() {
+    var username = document.queryselector('#inputUsername');
+    localStorage.setitem('username', username);
+    alert(username);
+
 };
