@@ -4,16 +4,18 @@
 {% endblock %}
 
 {% block body1 %}
+</br>
+<h4 id="username">Not logged in</h4>
+<button id="login" name="action" value="login" class="btn btn-success">Login</button>
 
 </br>
-<form method = "post">
-    <div class="form-group">
-      <input type="text" id="inputUsername" class="form-control" placeholder="Enter chat name" name="username">
-    </div>
-    <button type="submit" id="login" name="action" value="login" class="btn btn-success">Go!</button>
-  </form>
-{% endblock %}
 
+<ul id="channels" class="channels">
+</ul>
+
+<button id="addChannel" class="btn btn-success">Add channel</button>
+{% endblock %}
+<h1>This is chatroom</h1>
 {% block body2 %}
 
 
