@@ -11,7 +11,12 @@ app.config["SECRET_KEY"] = 'super_secret_key'
 socketio = SocketIO(app)
 
 
-@app.route("/", methods= ['GET', 'POST'])
+@app.route("/")
 def index():
-    #session['logged_in'] = None
     return render_template("index.html")
+
+@socketio.on("add channel")
+def channel(data):
+    channel = data["channel"]
+    emit("announce channel", {"channel": channel}, broadcast=True)
+    
