@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const channel = prompt("Enter channel name");
             socket.emit('add channel', {'channel': channel});
         }    
-        //call gunction that sends message when clicking send or pressing enter
+        //call function that sends message when clicking send or pressing enter
         document.getElementById('sendMessage').onclick = sendMessage;
         $('#newMessage').keyup(function(e){
         var enterkey = 13;
@@ -32,32 +32,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //when new channel is announced, add to unordered list
     socket.on('announce channel', data => {
-        alert("i am here");
         const li = document.createElement('li');
         li.innerHTML = data.channel;
+        li.className = "channel";
         document.querySelector('#channels').append(li);
+        location.reload(true);
     });
 
     //when new message is announced, add to unordered list
     socket.on('announce message', data => {
         const li = document.createElement('li');
         li.innerHTML = data.message;
+        li.onclick = loadChannel();
         document.querySelector('#chat').append(li);
+
     });
 
-
-    //when clicking on a channel load the channel in chatroom
-    channelList = document.getElementsByClassName('channel');
-    for (var i=0; i < channelList.length; i++) {
-        channelList[i].onclick = () => {
-            alert("done");
-        }
-    }
-
-    //make channels clickable
-    document.getElementById('username').onclick = () => {
-        alert("it is working");
-    }
+    //when clicking on a channel load it into the chat
+    $(".channel").click(function(event){
+        alert(this.innerHTML);
+    });
 
     /*login button */
     document.getElementById('login').onclick = login;
@@ -80,13 +74,16 @@ function login() {
     }
     };
 
-
 //broadcast message through websocket
 function sendMessage() {
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
     const message = document.querySelector('#newMessage').value;
     username = localStorage.getItem('username');
-    const contents = `${username} : ${message}`;
+    const contents = `${username}: ${message}`;
     document.querySelector('#newMessage').value = ""
     socket.emit('new message', {'message': contents});
+}
+
+function loadChannel(){
+    alert("test");
 }

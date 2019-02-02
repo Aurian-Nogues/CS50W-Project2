@@ -7,10 +7,11 @@
 </br>
 <h4 id="username">Not logged in</h4>
 <button id="login" name="action" value="login" class="btn btn-success">Login</button>
-
 </br>
 </br>
-<h5 class="textColor">Channels:</h5>
+<h4 id="activeChannel">No active channel</h4>
+</br>
+<h4 class="textColor">Channels:</h4>
 
 <ul id="channels">
     {% for channel in channels %}
@@ -20,16 +21,11 @@
 
 <button id="addChannel" class="btn btn-success">Add channel</button>
 {% endblock %}
-<h1>This is chatroom</h1>
+
+
 {% block body2 %}
 
 <ul id="chat">
-  <li>test</li>
-  <li>test</li>
-  <li>test</li>
-
-
-
 </ul>
 
 <div class="input-group mb-3" id="inputBox">

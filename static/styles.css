@@ -11,13 +11,17 @@ min-height:100vh;
   color: white;
 }
 
+#activeChannel{
+  color: #23903c;
+}
+
 #channels{
   color: white;
   list-style-type: none;
 }
 
 .channel:hover{
-  color:  #339933;
+  color:  #23903c;
   cursor: pointer;
 }
 

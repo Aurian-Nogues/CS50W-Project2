@@ -24,7 +24,6 @@ def channel(data):
 
 @socketio.on("new message")
 def message(data):
-    #username = data["username"]
     message = data["message"]
     emit("announce message", {"message": message}, broadcast=True)
         
