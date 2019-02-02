@@ -10,13 +10,15 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = 'super_secret_key'
 socketio = SocketIO(app)
 
+channels = []
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", channels=channels)
 
 @socketio.on("add channel")
 def channel(data):
     channel = data["channel"]
+    channels.append(channel)
     emit("announce channel", {"channel": channel}, broadcast=True)
-    
+

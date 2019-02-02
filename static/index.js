@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // When connected to websoicket, watch buttons
+    // When connected to websocket
     socket.on('connect', () =>{
         document.getElementById('addChannel').onclick = () => {
             var channel = prompt("Enter channel name");
@@ -31,36 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-
-
-
-    
-
     /*login button */
     document.getElementById('login').onclick = login;
 });
 
-
-
-/* //when click add channel button emite "add channel" event
-function addChannel() {
-    var channel = prompt("Enter channel name");
-    socket.emit('add channel', {'channel': channel});
-    alert(channel);
-    };
-    
-    // create new object and assign user input to it
-  /*   var channel = prompt("Enter channel name");
-    const li = document.createElement('li');
-    li.innerHTML = channel; */
-   
-    // append new channel to channel list
- /*    document.querySelector('#channels').append(li);
-};
- */
 //handles username storage in localStorage and changes login/logout button */
-
-
 function login() {
     if (localStorage.getItem('username') === null) {
         var username = prompt("Enter user name");
