@@ -5,19 +5,38 @@ min-height:100vh;
 
 #chatroom{
   background-color: #254d74;
+}
 
+.textColor{
+  color: white;
 }
 
 #channels{
   color: white;
+  list-style-type: none;
+}
+
+.channel:hover{
+  color:  #339933;
+  cursor: pointer;
 }
 
 #username{
   color:white;
 }
 
+#chat{
+  color: white;
+  list-style-type: none;
+  position: absolute;
+  bottom: 75px;
+  width: 90%;
+  border: 3px solid #8AC007;
+  
+}
+
 #inputBox{
   position: absolute;
-  bottom: 50px;
+  bottom: 15px;
   width: 90%;
 }

@@ -22,3 +22,10 @@ def channel(data):
     channels.append(channel)
     emit("announce channel", {"channel": channel}, broadcast=True)
 
+@socketio.on("new message")
+def message(data):
+    #username = data["username"]
+    message = data["message"]
+    emit("announce message", {"message": message}, broadcast=True)
+        
+

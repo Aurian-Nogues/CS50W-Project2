@@ -9,10 +9,12 @@
 <button id="login" name="action" value="login" class="btn btn-success">Login</button>
 
 </br>
+</br>
+<h5 class="textColor">Channels:</h5>
 
 <ul id="channels">
     {% for channel in channels %}
-    <li>{{channel}}</li>
+    <li class="channel">{{channel}}</li>
     {% endfor %}
 </ul>
 
@@ -22,12 +24,18 @@
 {% block body2 %}
 
 <ul id="chat">
+  <li>test</li>
+  <li>test</li>
+  <li>test</li>
+
+
+
 </ul>
 
 <div class="input-group mb-3" id="inputBox">
-        <input type="text"  class="form-control" placeholder="Type here" aria-label="Recipient's username" aria-describedby="basic-addon2">
+        <input id="newMessage" type="text"  class="form-control" placeholder="Type here" aria-label="Recipient's username" aria-describedby="basic-addon2">
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button">Send</button>
+          <button class="btn btn-outline-secondary" type="button" id="sendMessage">Send</button>
         </div>
       </div>
 {% endblock %}
