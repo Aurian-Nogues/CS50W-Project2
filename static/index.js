@@ -20,13 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const channel = prompt("Enter channel name");
             socket.emit('add channel', {'channel': channel});
         }    
-        //emit new chats
-        document.getElementById('sendMessage').onclick = () => {
-            const message = document.querySelector('#newMessage').value;
-            //username = localStorage.getItem('username');
-            //socket.emit('new message', {'username': username, 'message': message});
-            socket.emit('new message', {'message': message});
+        //call gunction that sends message when clicking send or pressing enter
+        document.getElementById('sendMessage').onclick = sendMessage;
+        $('#newMessage').keyup(function(e){
+        var enterkey = 13;
+        if (e.which == enterkey){
+            sendMessage();
         }
+        });
     });
 
     //when new channel is announced, add to unordered list
@@ -79,3 +80,13 @@ function login() {
     }
     };
 
+
+//broadcast message through websocket
+function sendMessage() {
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+    const message = document.querySelector('#newMessage').value;
+    username = localStorage.getItem('username');
+    const contents = `${username} : ${message}`;
+    document.querySelector('#newMessage').value = ""
+    socket.emit('new message', {'message': contents});
+}
