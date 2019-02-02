@@ -13,6 +13,11 @@ min-height:100vh;
 
 #activeChannel{
   color: #23903c;
+  border: 3px solid #23903c;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
 }
 
 #channels{

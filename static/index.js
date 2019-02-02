@@ -39,18 +39,21 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload(true);
     });
 
-    //when new message is announced, add to unordered list
+    //when new message is announced, add to unordered list if in the right channel
     socket.on('announce message', data => {
-        const li = document.createElement('li');
-        li.innerHTML = data.message;
-        li.onclick = loadChannel();
-        document.querySelector('#chat').append(li);
-
+        activeChannel = document.getElementById('activeChannel').innerHTML;
+        messageChannel = data.channel;
+        if (activeChannel == messageChannel){
+            const li = document.createElement('li');
+            li.innerHTML = data.message;
+            document.querySelector('#chat').append(li);
+        }
     });
 
-    //when clicking on a channel load it into the chat
+    //when clicking on a channel load the channel
     $(".channel").click(function(event){
-        alert(this.innerHTML);
+        channel = this.innerHTML;
+        document.getElementById('activeChannel').innerHTML = channel;
     });
 
     /*login button */
@@ -80,10 +83,7 @@ function sendMessage() {
     const message = document.querySelector('#newMessage').value;
     username = localStorage.getItem('username');
     const contents = `${username}: ${message}`;
+    const channel = document.getElementById('activeChannel').innerHTML;
     document.querySelector('#newMessage').value = ""
-    socket.emit('new message', {'message': contents});
-}
-
-function loadChannel(){
-    alert("test");
+    socket.emit('new message', {'message': contents, 'channel': channel});
 }

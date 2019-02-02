@@ -16,15 +16,23 @@ channels = []
 def index():
     return render_template("index.html", channels=channels)
 
+#handles the channel loading
+@app.route("/channel", methods=["POST"])
+def channel():
+    channel=request.form.get("channel")
+
+#websocket to add new channel
 @socketio.on("add channel")
 def channel(data):
     channel = data["channel"]
     channels.append(channel)
     emit("announce channel", {"channel": channel}, broadcast=True)
 
+#websocket to broadcast new messages
 @socketio.on("new message")
 def message(data):
     message = data["message"]
-    emit("announce message", {"message": message}, broadcast=True)
+    channel = data["channel"]
+    emit("announce message", {"message": message, "channel": channel}, broadcast=True)
         
 
