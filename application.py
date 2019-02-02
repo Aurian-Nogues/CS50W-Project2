@@ -10,16 +10,14 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = 'super_secret_key'
 socketio = SocketIO(app)
 
-channels = []
+channels = [] #list of all channels
+
+
 
 @app.route("/")
 def index():
     return render_template("index.html", channels=channels)
 
-#handles the channel loading
-@app.route("/channel", methods=["POST"])
-def channel():
-    channel=request.form.get("channel")
 
 #websocket to add new channel
 @socketio.on("add channel")
