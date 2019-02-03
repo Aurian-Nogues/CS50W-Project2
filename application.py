@@ -41,6 +41,11 @@ def message(data):
     message = data["message"]
     channel = data["channel"]
     conversations.setdefault(channel, []).append(message) #store message in appropriate channel dict entry
+    
+    #If there are more than 100 messages in the channel delete the last one
+    if len(conversations[channel]) > 100 :
+        del conversations[channel][0]
+
     emit("announce message", {"message": message, "channel": channel}, broadcast=True)
         
 

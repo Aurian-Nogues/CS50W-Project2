@@ -39,9 +39,7 @@ min-height:100vh;
   list-style-type: none;
   position: absolute;
   bottom: 75px;
-  width: 90%;
-  border: 3px solid #8AC007;
-  
+  width: 90%;  
 }
 
 #inputBox{
