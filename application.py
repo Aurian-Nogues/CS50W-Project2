@@ -22,7 +22,10 @@ def index():
 @app.route("/load", methods=["POST"])
 def load():
     channel = request.form.get("channel")
-    message = conversations[channel][0]
+    if conversations.get(channel) == None :
+        message = "empty"
+    else:
+        message = conversations[channel][0]
     return jsonify({"message": message})
 
 #websocket to add new channel
