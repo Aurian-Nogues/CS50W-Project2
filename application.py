@@ -18,15 +18,15 @@ conversations = dict() #global variable to store conversations
 def index():
     return render_template("index.html", channels=channels)
 
-
+#loads existing messages when loading a channel
 @app.route("/load", methods=["POST"])
 def load():
     channel = request.form.get("channel")
     if conversations.get(channel) == None :
-        message = "empty"
+        return jsonify({"success": False})
     else:
-        message = conversations[channel][0]
-    return jsonify({"message": message})
+        messages = conversations[channel]
+        return jsonify({"success": True, "messages": messages})
 
 #websocket to add new channel
 @socketio.on("add channel")

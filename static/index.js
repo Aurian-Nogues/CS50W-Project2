@@ -61,8 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Callback function for when request completes
         request.onload = () => {
             const data = JSON.parse(request.responseText);
-            message = data.message;  
-            alert(message);       
+            if (data.success){
+
+                //extract JSON from request
+                messages = data.messages;
+                for (i = 0; i < messages.length; ++i){
+                    const li = document.createElement('li');
+                    li.innerHTML = messages[i]
+                    document.querySelector('#chat').append(li);
+                }
+            }
+            else{
+                alert("no message to load")
+            }       
             document.getElementById('activeChannel').innerHTML = channel;
         }      
         
