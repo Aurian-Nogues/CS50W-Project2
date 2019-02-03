@@ -52,7 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //when clicking on a channel load the channel
     $(".channel").click(function(event){
-        
+        //clear chat
+        var chat = document.querySelector('#chat');
+        if (chat){
+            while(chat.firstChild){
+                chat.removeChild(chat.firstChild);
+            }
+        }
+
         //initialize request
         const request = new XMLHttpRequest();
         const channel = this.innerHTML;
@@ -65,15 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 //extract JSON from request
                 messages = data.messages;
+                //append server messages in chat window
                 for (i = 0; i < messages.length; ++i){
                     const li = document.createElement('li');
                     li.innerHTML = messages[i]
                     document.querySelector('#chat').append(li);
                 }
             }
-            else{
-                alert("no message to load")
-            }       
+            //display channel name
             document.getElementById('activeChannel').innerHTML = channel;
         }      
         
