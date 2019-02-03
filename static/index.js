@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         li.innerHTML = data.channel;
         li.className = "channel";
         document.querySelector('#channels').append(li);
-        location.reload(true);
     });
 
     //when new message is announced, add to unordered list if in the right channel
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     //when clicking on a channel load the channel
-    $(".channel").click(function(event){
+    $(document).on("click",".channel",function(event){
         //clear chat
         var chat = document.querySelector('#chat');
         if (chat){
