@@ -125,10 +125,14 @@ function login() {
 
 //broadcast message through websocket
 function sendMessage() {
+    //prepare websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
     const message = document.querySelector('#newMessage').value;
     username = localStorage.getItem('username');
-    const contents = `${username}: ${message}`;
+    timestamp = new Date().toLocaleTimeString();
+ 
+    //put message together with timestamp and channel and send through websocket
+    const contents = `${timestamp} || ${username}: ${message}`;
     const channel = document.getElementById('activeChannel').innerHTML;
     document.querySelector('#newMessage').value = ""
     socket.emit('new message', {'message': contents, 'channel': channel});
