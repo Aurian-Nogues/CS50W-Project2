@@ -18,6 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
         //emit channel additions
         document.getElementById('addChannel').onclick = () => {
             const channel = prompt("Enter channel name");
+            
+            //prevent channel duplication
+            var ul = document.getElementById("channels");
+            var items = ul.getElementsByTagName("li");
+            for (var i = 0;i < items.length; i++){
+                if (items[i].innerHTML == channel){
+                    alert("Channel already exist, please choose another name");
+                    return;
+                }
+            }
+
+            //emit new channel through websocket
             socket.emit('add channel', {'channel': channel});
         }    
         //call function that sends message when clicking send or pressing enter
@@ -68,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         request.onload = () => {
             const data = JSON.parse(request.responseText);
             if (data.success){
-
                 //extract JSON from request
                 messages = data.messages;
                 //append server messages in chat window
@@ -83,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }      
         
         //add data to send with request
-        const data=new FormData();
+        const data = new FormData();
         data.append('channel', channel);
 
         //send request
