@@ -8,6 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('username').innerHTML = username;
         $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
         document.getElementById('login').innerHTML = "Logout";
+    } else {
+        //hide everything if user not logged in
+        document.getElementById('inputBox').style.visibility='hidden';
+        document.getElementById('channels').style.visibility='hidden';
+        document.getElementById('addChannel').style.visibility='hidden';
+        document.getElementById('chat').style.visibility='hidden';
+        document.getElementById('sendMessage').style.visibility='hidden';
+        document.getElementById('activeChannel').style.visibility='hidden';
+        document.getElementById('channelLabel').style.visibility='hidden';
+
+
     }
 
     //check if there is a channel in local storage and load it if there is
@@ -82,12 +93,34 @@ function login() {
         document.getElementById('username').innerHTML = username;
         $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
         document.getElementById('login').innerHTML = "Logout";
+
+        //load channel content
+        loadChannel();
+
+        //show everything on login
+        document.getElementById('inputBox').style.visibility='visible';
+        document.getElementById('channels').style.visibility='visible';
+        document.getElementById('addChannel').style.visibility='visible';
+        document.getElementById('chat').style.visibility='visible';
+        document.getElementById('sendMessage').style.visibility='visible';
+        document.getElementById('activeChannel').style.visibility='visible';
+        document.getElementById('channelLabel').style.visibility='visible';
     }
     else {
         localStorage.removeItem('username');
+        localStorage.removeItem('channel');
         document.getElementById('username').innerHTML = "Not logged in";
         $("#login").removeClass("btn btn-danger").addClass("btn btn-success");
         document.getElementById('login').innerHTML = "Login";
+
+        //hide everything on logout
+        document.getElementById('inputBox').style.visibility='hidden';
+        document.getElementById('channels').style.visibility='hidden';
+        document.getElementById('addChannel').style.visibility='hidden';
+        document.getElementById('chat').style.visibility='hidden';
+        document.getElementById('sendMessage').style.visibility='hidden';
+        document.getElementById('activeChannel').style.visibility='hidden';
+        document.getElementById('channelLabel').style.visibility='hidden';
     }
     };
 
@@ -116,7 +149,6 @@ if (chat){
         chat.removeChild(chat.firstChild);
     }
 }
-
 //get channel from click (if clicked on channel) or localStorage (if page just loaded)
 if (this.innerHTML != null){
     channel = this.innerHTML;
@@ -124,7 +156,6 @@ if (this.innerHTML != null){
 } else {
     channel = localStorage.getItem('channel');
 }
-
 //display channel on page
 document.getElementById('activeChannel').innerHTML = channel;
 
@@ -146,7 +177,6 @@ request.onload = () => {
         }
     }
 }      
-
 //add data to send with request
 const data = new FormData();
 data.append('channel', channel);
