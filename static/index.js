@@ -52,8 +52,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //when clicking on a channel load the channel
     $(".channel").click(function(event){
-        channel = this.innerHTML;
-        document.getElementById('activeChannel').innerHTML = channel;
+        
+        //initialize request
+        const request = new XMLHttpRequest();
+        const channel = this.innerHTML;
+        request.open('POST', '/load');  
+        
+        // Callback function for when request completes
+        request.onload = () => {
+            const data = JSON.parse(request.responseText);
+            message = data.message;  
+            alert(message);       
+            document.getElementById('activeChannel').innerHTML = channel;
+        }      
+        
+        //add data to send with request
+        const data=new FormData();
+        data.append('channel', channel);
+
+        //send request
+        request.send(data);
+        return false;
     });
 
     /*login button */

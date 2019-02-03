@@ -11,13 +11,19 @@ app.config["SECRET_KEY"] = 'super_secret_key'
 socketio = SocketIO(app)
 
 channels = [] #list of all channels
-
+conversations = dict() #global variable to store conversations
 
 
 @app.route("/")
 def index():
     return render_template("index.html", channels=channels)
 
+
+@app.route("/load", methods=["POST"])
+def load():
+    channel = request.form.get("channel")
+    message = conversations[channel][0]
+    return jsonify({"message": message})
 
 #websocket to add new channel
 @socketio.on("add channel")
@@ -31,6 +37,7 @@ def channel(data):
 def message(data):
     message = data["message"]
     channel = data["channel"]
+    conversations.setdefault(channel, []).append(message) #store message in appropriate channel dict entry
     emit("announce message", {"message": message, "channel": channel}, broadcast=True)
         
 
