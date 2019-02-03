@@ -9,7 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
         $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
         document.getElementById('login').innerHTML = "Logout";
     }
-    
+
+    //check if there is a channel in local storage and load it if there is
+    if (localStorage.getItem('channel') != null) {
+        channel = localStorage.getItem('channel');
+        loadChannel();
+    }
+        
     // Connect to websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
@@ -62,45 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     //when clicking on a channel load the channel
-    $(document).on("click",".channel",function(event){
-        //clear chat
-        var chat = document.querySelector('#chat');
-        if (chat){
-            while(chat.firstChild){
-                chat.removeChild(chat.firstChild);
-            }
-        }
-
-        //initialize request
-        const request = new XMLHttpRequest();
-        const channel = this.innerHTML;
-        request.open('POST', '/load');  
-        
-        // Callback function for when request completes
-        request.onload = () => {
-            const data = JSON.parse(request.responseText);
-            if (data.success){
-                //extract JSON from request
-                messages = data.messages;
-                //append server messages in chat window
-                for (i = 0; i < messages.length; ++i){
-                    const li = document.createElement('li');
-                    li.innerHTML = messages[i]
-                    document.querySelector('#chat').append(li);
-                }
-            }
-            //display channel name
-            document.getElementById('activeChannel').innerHTML = channel;
-        }      
-        
-        //add data to send with request
-        const data = new FormData();
-        data.append('channel', channel);
-
-        //send request
-        request.send(data);
-        return false;
-    });
+    $(document).on("click",".channel",loadChannel);
 
     /*login button */
     document.getElementById('login').onclick = login;
@@ -136,4 +104,54 @@ function sendMessage() {
     const channel = document.getElementById('activeChannel').innerHTML;
     document.querySelector('#newMessage').value = ""
     socket.emit('new message', {'message': contents, 'channel': channel});
+};
+
+//handles the channel loading when clicking on a channel or loading the page
+function loadChannel(){
+
+//clear chat
+var chat = document.querySelector('#chat');
+if (chat){
+    while(chat.firstChild){
+        chat.removeChild(chat.firstChild);
+    }
 }
+
+//get channel from click (if clicked on channel) or localStorage (if page just loaded)
+if (this.innerHTML != null){
+    channel = this.innerHTML;
+    localStorage.setItem('channel', channel);
+} else {
+    channel = localStorage.getItem('channel');
+}
+
+//display channel on page
+document.getElementById('activeChannel').innerHTML = channel;
+
+//initialize request
+const request = new XMLHttpRequest();
+request.open('POST', '/load');  
+
+// Callback function for when request completes
+request.onload = () => {
+    const data = JSON.parse(request.responseText);
+    if (data.success){
+        //extract JSON from request
+        messages = data.messages;
+        //append server messages in chat window
+        for (i = 0; i < messages.length; ++i){
+            const li = document.createElement('li');
+            li.innerHTML = messages[i]
+            document.querySelector('#chat').append(li);
+        }
+    }
+}      
+
+//add data to send with request
+const data = new FormData();
+data.append('channel', channel);
+
+//send request
+request.send(data);
+return false;
+};
