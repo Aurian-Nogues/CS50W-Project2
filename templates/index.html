@@ -19,8 +19,17 @@
     <li class="channel">{{channel}}</li>
     {% endfor %}
 </ul>
-
 <button id="addChannel" class="btn btn-success">Add channel</button>
+
+</br>
+</br>
+<h4 id ="usersLabel" class="textColor">Users in channel:</h4>
+<ul id="users">
+  {% for user in users %}
+  <li class="user">{{user}}</li>
+  {% endfor %}
+</ul>
+
 {% endblock %}
 
 
@@ -34,5 +43,4 @@
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" type="button" id="sendMessage">Send</button>
         </div>
-      </div>
 {% endblock %}

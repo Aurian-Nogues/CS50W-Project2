@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('sendMessage').style.visibility='hidden';
         document.getElementById('activeChannel').style.visibility='hidden';
         document.getElementById('channelLabel').style.visibility='hidden';
-
-
+        document.getElementById('usersLabel').style.visibility='hidden';
+        document.getElementById('users').style.visibility='hidden';
     }
 
     //check if there is a channel in local storage and load it if there is
@@ -83,105 +83,135 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*login button */
     document.getElementById('login').onclick = login;
+
 });
 
-//handles username storage in localStorage and changes login/logout button 
-function login() {
-    if (localStorage.getItem('username') === null) {
-        var username = prompt("Enter user name");
-        localStorage.setItem('username', username);
-        document.getElementById('username').innerHTML = username;
-        $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
-        document.getElementById('login').innerHTML = "Logout";
+    //handles username storage in localStorage and changes login/logout button 
+    function login() {
+        if (localStorage.getItem('username') === null) {
+            var username = prompt("Enter user name");
+            if(!username.match(/\S/)) {
+                alert('Empty user name is not allowed');
+                 return false;
+            } else {
+                localStorage.setItem('username', username);
+                document.getElementById('username').innerHTML = username;
+                $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
+                document.getElementById('login').innerHTML = "Logout";
 
-        //load channel content
-        loadChannel();
+                //call functions to load channel and show connected users
+                loadChannel();
+                connectedUser(username);
 
-        //show everything on login
-        document.getElementById('inputBox').style.visibility='visible';
-        document.getElementById('channels').style.visibility='visible';
-        document.getElementById('addChannel').style.visibility='visible';
-        document.getElementById('chat').style.visibility='visible';
-        document.getElementById('sendMessage').style.visibility='visible';
-        document.getElementById('activeChannel').style.visibility='visible';
-        document.getElementById('channelLabel').style.visibility='visible';
-    }
-    else {
-        localStorage.removeItem('username');
-        localStorage.removeItem('channel');
-        document.getElementById('username').innerHTML = "Not logged in";
-        $("#login").removeClass("btn btn-danger").addClass("btn btn-success");
-        document.getElementById('login').innerHTML = "Login";
 
-        //hide everything on logout
-        document.getElementById('inputBox').style.visibility='hidden';
-        document.getElementById('channels').style.visibility='hidden';
-        document.getElementById('addChannel').style.visibility='hidden';
-        document.getElementById('chat').style.visibility='hidden';
-        document.getElementById('sendMessage').style.visibility='hidden';
-        document.getElementById('activeChannel').style.visibility='hidden';
-        document.getElementById('channelLabel').style.visibility='hidden';
-    }
+                //show everything on login
+                document.getElementById('inputBox').style.visibility='visible';
+                document.getElementById('channels').style.visibility='visible';
+                document.getElementById('addChannel').style.visibility='visible';
+                document.getElementById('chat').style.visibility='visible';
+                document.getElementById('sendMessage').style.visibility='visible';
+                document.getElementById('activeChannel').style.visibility='visible';
+                document.getElementById('channelLabel').style.visibility='visible';
+                document.getElementById('usersLabel').style.visibility='visible';
+                document.getElementById('users').style.visibility='visible';
+
+             }
+         }
+        else {
+            //remove everything from LocalStorage
+            username = localStorage.getItem('username');
+            localStorage.removeItem('username');
+            localStorage.removeItem('channel');
+            document.getElementById('username').innerHTML = "Login to start chatting";
+            $("#login").removeClass("btn btn-danger").addClass("btn btn-success");
+            document.getElementById('login').innerHTML = "Login";
+
+            //call function to show connected users
+            connectedUser(username);
+
+            //hide everything on logout
+            document.getElementById('inputBox').style.visibility='hidden';
+            document.getElementById('channels').style.visibility='hidden';
+            document.getElementById('addChannel').style.visibility='hidden';
+            document.getElementById('chat').style.visibility='hidden';
+            document.getElementById('sendMessage').style.visibility='hidden';
+            document.getElementById('activeChannel').style.visibility='hidden';
+            document.getElementById('channelLabel').style.visibility='hidden';
+            document.getElementById('usersLabel').style.visibility='hidden';
+            document.getElementById('users').style.visibility='hidden';
+            }
+        };
+
+    //broadcast message through websocket
+    function sendMessage() {
+        //prepare websocket
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+        const message = document.querySelector('#newMessage').value;
+        username = localStorage.getItem('username');
+        timestamp = new Date().toLocaleTimeString();
+    
+        //put message together with timestamp and channel and send through websocket
+        const contents = `${timestamp} || ${username}: ${message}`;
+        const channel = document.getElementById('activeChannel').innerHTML;
+        document.querySelector('#newMessage').value = ""
+        socket.emit('new message', {'message': contents, 'channel': channel});
     };
 
-//broadcast message through websocket
-function sendMessage() {
-    //prepare websocket
-    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-    const message = document.querySelector('#newMessage').value;
-    username = localStorage.getItem('username');
-    timestamp = new Date().toLocaleTimeString();
- 
-    //put message together with timestamp and channel and send through websocket
-    const contents = `${timestamp} || ${username}: ${message}`;
-    const channel = document.getElementById('activeChannel').innerHTML;
-    document.querySelector('#newMessage').value = ""
-    socket.emit('new message', {'message': contents, 'channel': channel});
-};
+    //handles the channel loading when clicking on a channel or loading the page
+    function loadChannel(){
 
-//handles the channel loading when clicking on a channel or loading the page
-function loadChannel(){
-
-//clear chat
-var chat = document.querySelector('#chat');
-if (chat){
-    while(chat.firstChild){
-        chat.removeChild(chat.firstChild);
-    }
-}
-//get channel from click (if clicked on channel) or localStorage (if page just loaded)
-if (this.innerHTML != null){
-    channel = this.innerHTML;
-    localStorage.setItem('channel', channel);
-} else {
-    channel = localStorage.getItem('channel');
-}
-//display channel on page
-document.getElementById('activeChannel').innerHTML = channel;
-
-//initialize request
-const request = new XMLHttpRequest();
-request.open('POST', '/load');  
-
-// Callback function for when request completes
-request.onload = () => {
-    const data = JSON.parse(request.responseText);
-    if (data.success){
-        //extract JSON from request
-        messages = data.messages;
-        //append server messages in chat window
-        for (i = 0; i < messages.length; ++i){
-            const li = document.createElement('li');
-            li.innerHTML = messages[i]
-            document.querySelector('#chat').append(li);
+        //clear chat
+        var chat = document.querySelector('#chat');
+        if (chat){
+            while(chat.firstChild){
+                chat.removeChild(chat.firstChild);
+            }
         }
-    }
-}      
-//add data to send with request
-const data = new FormData();
-data.append('channel', channel);
+        //get channel from click (if clicked on channel) or localStorage (if page just loaded)
+        if (this.innerHTML != null){
+            channel = this.innerHTML;
+            localStorage.setItem('channel', channel);
+        } else {
+            channel = localStorage.getItem('channel');
+        }
+        //display channel on page
+        document.getElementById('activeChannel').innerHTML = channel;
 
-//send request
-request.send(data);
-return false;
-};
+        //initialize request
+        const request = new XMLHttpRequest();
+        request.open('POST', '/load');  
+
+        // Callback function for when request completes
+        request.onload = () => {
+            const data = JSON.parse(request.responseText);
+            if (data.success){
+                //extract JSON from request
+                messages = data.messages;
+                //append server messages in chat window
+                for (i = 0; i < messages.length; ++i){
+                    const li = document.createElement('li');
+                    li.innerHTML = messages[i]
+                    document.querySelector('#chat').append(li);
+                }
+            }
+        }      
+        //add data to send with request
+        const data = new FormData();
+        data.append('channel', channel);
+
+        //send request
+        request.send(data);
+        return false;
+    };
+
+    //function to show users connected
+    function connectedUser(username){
+        if(localStorage.getItem("username") == null  ){
+            alert("log out");
+            alert(username);
+        } else {
+            alert("log in");
+            alert(username);
+        }
+    };
+

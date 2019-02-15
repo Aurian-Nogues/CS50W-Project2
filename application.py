@@ -28,6 +28,7 @@ def load():
         messages = conversations[channel]
         return jsonify({"success": True, "messages": messages})
 
+#test
 #websocket to add new channel
 @socketio.on("add channel")
 def channel(data):
