@@ -81,19 +81,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    //when user connects or changes channel, update the table
+    socket.on('user connection', data => {
+        user = data.user;
+        channel = data.channel;
+        alert(user);
+        alert(channel);
+    });
+
     //when clicking on a channel load the channel
     $(document).on("click",".channel",loadChannel);
 
     /*login button */
     document.getElementById('login').onclick = login;
-
-    $(document).ready(function () {
-        $('#dtVerticalScrollExample').DataTable({
-        "scrollY": "200px",
-        "scrollCollapse": true,
-        });
-        $('.dataTables_length').addClass('bs-select');
-        });
 
 });
 
@@ -224,7 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
             //logging in
             } else {
-                alert("log in");
-                alert(username);
+                //prepare websocket and send username
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+                username = "test";
+                channel = "none";
+                socket.emit('user connection', {'username': username, 'channel': channel});
             }
         };

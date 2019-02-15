@@ -14,6 +14,7 @@ channels = [] #list of all channels
 conversations = dict() #global variable to store conversations
 
 
+
 @app.route("/")
 def index():
     return render_template("index.html", channels=channels)
@@ -28,13 +29,22 @@ def load():
         messages = conversations[channel]
         return jsonify({"success": True, "messages": messages})
 
-#test
+
 #websocket to add new channel
 @socketio.on("add channel")
 def channel(data):
     channel = data["channel"]
     channels.append(channel)
     emit("announce channel", {"channel": channel}, broadcast=True)
+
+#websocket to announce user connection
+@socketio.on("user connection")
+def connection(data):
+    user = data["username"]
+    channel = data["channel"]
+    emit("user connection", {"user": user, "channel":channel}, broadcast=True)
+
+
 
 #websocket to broadcast new messages
 @socketio.on("new message")
