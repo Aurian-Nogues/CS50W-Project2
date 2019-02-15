@@ -13,8 +13,6 @@ socketio = SocketIO(app)
 channels = [] #list of all channels
 conversations = dict() #global variable to store conversations
 
-
-
 @app.route("/")
 def index():
     return render_template("index.html", channels=channels)

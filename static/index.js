@@ -21,11 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('connectedUsers').style.visibility='hidden';
     }
 
-    //check if there is a channel in local storage and load it if there is
-    if (localStorage.getItem('channel') != null) {
-        channel = localStorage.getItem('channel');
+        //load channel in local storage or default channel
         loadChannel();
-    }
+    
         
     // Connect to websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
@@ -85,8 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('user connection', data => {
         user = data.user;
         channel = data.channel;
-        alert(user);
-        alert(channel);
+        var newRow=document.getElementById('connectedUsers').insertRow();
+        newRow.innerHTML = "<td>"+user+"</td><td>"+channel+"</td>";
     });
 
     //when clicking on a channel load the channel
@@ -112,7 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 //call functions to load channel and show connected users
                 loadChannel();
-                connectedUser(username);
+                channel = localStorage.getItem('channel');
+                connectedUser(username, channel);
 
 
                 //show everything on login
@@ -183,10 +182,19 @@ document.addEventListener('DOMContentLoaded', () => {
             channel = this.innerHTML;
             localStorage.setItem('channel', channel);
         } else {
-            channel = localStorage.getItem('channel');
+            //if nothing in local storage load General by default
+            if (localStorage.getItem('channel') != null){
+                channel = localStorage.getItem('channel');
+            } else {
+                channel = "General";
+                localStorage.setItem('channel', channel);
+            }
         }
         //display channel on page
         document.getElementById('activeChannel').innerHTML = channel;
+       
+        //broadcast channel change to websocket
+        connectedUser(username, channel);
 
         //initialize request
         const request = new XMLHttpRequest();
@@ -215,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     };
 
-    //function to show users connected
-    function connectedUser(username){
+    //function to send info when users connects or joins a channel
+    function connectedUser(username, channel){
         //loging out
             if(localStorage.getItem("username") == null  ){
                 alert("log out");
@@ -224,10 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
             //logging in
             } else {
-                //prepare websocket and send username
+                //prepare websocket and send username + channel
                 var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-                username = "test";
-                channel = "none";
+                username = username;
+                channel = channel;
                 socket.emit('user connection', {'username': username, 'channel': channel});
             }
         };
