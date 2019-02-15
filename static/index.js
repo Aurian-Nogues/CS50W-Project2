@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('activeChannel').style.visibility='hidden';
         document.getElementById('channelLabel').style.visibility='hidden';
         document.getElementById('usersLabel').style.visibility='hidden';
-        document.getElementById('users').style.visibility='hidden';
+        document.getElementById('connectedUsers').style.visibility='hidden';
     }
 
     //check if there is a channel in local storage and load it if there is
@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             //emit new channel through websocket
             socket.emit('add channel', {'channel': channel});
         }    
+
         //call function that sends message when clicking send or pressing enter
         document.getElementById('sendMessage').onclick = sendMessage;
         $('#newMessage').keyup(function(e){
@@ -57,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage();
         }
         });
+
+
     });
 
     //when new channel is announced, add to unordered list
@@ -83,6 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*login button */
     document.getElementById('login').onclick = login;
+
+    $(document).ready(function () {
+        $('#dtVerticalScrollExample').DataTable({
+        "scrollY": "200px",
+        "scrollCollapse": true,
+        });
+        $('.dataTables_length').addClass('bs-select');
+        });
 
 });
 
@@ -113,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('activeChannel').style.visibility='visible';
                 document.getElementById('channelLabel').style.visibility='visible';
                 document.getElementById('usersLabel').style.visibility='visible';
-                document.getElementById('users').style.visibility='visible';
+                document.getElementById('connectedUsers').style.visibility='visible';
 
              }
          }
@@ -138,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('activeChannel').style.visibility='hidden';
             document.getElementById('channelLabel').style.visibility='hidden';
             document.getElementById('usersLabel').style.visibility='hidden';
-            document.getElementById('users').style.visibility='hidden';
+            document.getElementById('connectedUsers').style.visibility='hidden';
             }
         };
 
@@ -206,12 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //function to show users connected
     function connectedUser(username){
-        if(localStorage.getItem("username") == null  ){
-            alert("log out");
-            alert(username);
-        } else {
-            alert("log in");
-            alert(username);
-        }
-    };
-
+        //loging out
+            if(localStorage.getItem("username") == null  ){
+                alert("log out");
+                alert(username);
+        
+            //logging in
+            } else {
+                alert("log in");
+                alert(username);
+            }
+        };
