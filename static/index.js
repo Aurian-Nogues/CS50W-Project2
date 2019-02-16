@@ -85,8 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
         user_username = localStorage.getItem('username');
         message_username = data.username;
         message_content = data.message;
+        message_sender = data.sender;
         if(user_username == message_username){
-            alert(message_content);
+            alert(message_sender + ' says: ' + message_content);
         }
     });
 
@@ -134,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //handles username storage in localStorage and changes login/logout button, also loads channel and add connected user to table
     function login() {
+        
         if (localStorage.getItem('username') === null) {
             var username = prompt("Enter user name");
             if(!username.match(/\S/)) {
@@ -148,6 +150,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 //call functions to load channel and show connected users
                 loadChannel();
                 channel = localStorage.getItem('channel');
+
+                //clear table from previous entries
+                var table = document.querySelector('#connectedUsers');
+                if (table){
+                    while(table.firstChild){
+                        table.removeChild(table.firstChild);
+                    }
+                }
+                
+                //update table with connected users
                 connectedUser(username, channel);
 
 
@@ -265,11 +277,17 @@ document.addEventListener('DOMContentLoaded', () => {
         //get reciptient username and message content
         username = this.innerHTML;
         const message = prompt("Enter private popup message");
-        //prepare websocket and content
-        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-        socket.emit('send private message', {'username': username, 'message': message});
-    }
+        sender = localStorage.getItem("username");
 
+        //check that message is not empty
+        if(!message.match(/\S/)) {
+             return false;
+        } else {
+            //prepare websocket and content
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+            socket.emit('send private message', {'username': username, 'message': message, "sender": sender});
+        }
+    }
     //Tracks when users connects, disconnects or joins a channel. Stores who's connected and in which channel they are
     function connectedUser(username, channel){
         //loging out

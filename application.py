@@ -67,7 +67,8 @@ def update():
 def receive(data):
     username = data["username"]
     message = data["message"]
-    emit("receive private message", {"username": username, "message": message}, broadcast = True)
+    sender = data["sender"]
+    emit("receive private message", {"username": username, "message": message, "sender": sender}, broadcast = True)
 
 #websocket to broadcast new messages
 @socketio.on("new message")
