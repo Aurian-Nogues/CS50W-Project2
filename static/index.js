@@ -107,8 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     });
 
-
-
     //when clicking on a channel load the channel
     $(document).on("click",".channel",loadChannel);
 
@@ -216,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('activeChannel').innerHTML = channel;
        
         //broadcast channel change to websocket
+        username = localStorage.getItem('username');
         connectedUser(username, channel);
 
         //initialize request

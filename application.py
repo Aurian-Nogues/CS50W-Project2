@@ -4,6 +4,7 @@ import requests
 from flask import Flask, session, render_template, redirect, request, url_for, jsonify
 from flask_session import Session
 from flask_socketio import SocketIO, emit
+import sys
 
 app = Flask(__name__)
 """ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")"""
@@ -48,14 +49,10 @@ def connection(data):
 #websocket to update users list
 @app.route("/update", methods=["GET"])
 def update():
-    users = ["Aurian", "Meltem", "Peanut"]
-    channels = ["Channel 1", "Channel 1", "Channel 2"]
-
-    return jsonify({"users": users, "channels": channels})
-
-
-
-
+    global users
+    users_list = list(users.keys())
+    channels_list = list(users.values())
+    return jsonify({"users": users_list, "channels": channels_list})
 
 #websocket to broadcast new messages
 @socketio.on("new message")
