@@ -333,11 +333,12 @@ window.addEventListener('beforeunload', () => {
         request.onload = () => {
             const data = JSON.parse(request.responseText);
             //if username is free return success, if already taken return failure
-            if (data.status){
-                status = "succes";
+            status = data.status;
+            if (status == "success"){
+                alert(status);
                 return status;
             } else {
-                status = "failure";
+                alert(status);
                 return status;
             }
         }      
