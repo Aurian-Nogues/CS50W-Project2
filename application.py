@@ -12,6 +12,7 @@ socketio = SocketIO(app)
 
 channels = [] #list of all channels
 conversations = dict() #global variable to store conversations
+users = dict() #keeps track of connected users and in which channel they are
 
 @app.route("/")
 def index():
@@ -35,12 +36,24 @@ def channel(data):
     channels.append(channel)
     emit("announce channel", {"channel": channel}, broadcast=True)
 
-#websocket to announce user connection
+#websocket to keep track of users when they connect / disconnect or change channels
 @socketio.on("user connection")
 def connection(data):
     user = data["username"]
     channel = data["channel"]
-    emit("user connection", {"user": user, "channel":channel}, broadcast=True)
+    global users
+    users[user] = channel
+    emit("update users", broadcast=True)
+
+#websocket to update users list
+@app.route("/update", methods=["GET"])
+def update():
+    users = ["Aurian", "Meltem", "Peanut"]
+    channels = ["Channel 1", "Channel 1", "Channel 2"]
+
+    return jsonify({"users": users, "channels": channels})
+
+
 
 
 

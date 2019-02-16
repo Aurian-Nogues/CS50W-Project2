@@ -56,8 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage();
         }
         });
-
-
     });
 
     //when new channel is announced, add to unordered list
@@ -80,12 +78,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     //when user connects or changes channel, update the table
-    socket.on('user connection', data => {
-        user = data.user;
-        channel = data.channel;
-        var newRow=document.getElementById('connectedUsers').insertRow();
-        newRow.innerHTML = "<td>"+user+"</td><td>"+channel+"</td>";
+    socket.on('update users', data => {
+
+        //clear all entries in users table
+        var table = document.querySelector('#connectedUsers');
+        if (table){
+            while(table.firstChild){
+                table.removeChild(table.firstChild);
+            }
+        }
+
+        //add all users and channels to table
+        //initialize request
+        const request = new XMLHttpRequest();
+        request.open('GET', '/update');  
+        // Callback function for when request completes
+        request.onload = () => {
+            const data = JSON.parse(request.responseText);
+            users = data.users;
+            channels = data.channels;
+            for (i=0; i < users.length; ++i){
+                var newRow=document.getElementById('connectedUsers').insertRow();
+                newRow.innerHTML = "<td>"+users[i]+"</td><td>"+channels[i]+"</td>";
+            }
+        }   
+        //send send request
+        request.send();
+        return false;
     });
+
+
 
     //when clicking on a channel load the channel
     $(document).on("click",".channel",loadChannel);
@@ -95,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-    //handles username storage in localStorage and changes login/logout button 
+    //handles username storage in localStorage and changes login/logout button, also loads channel and add connected user to table
     function login() {
         if (localStorage.getItem('username') === null) {
             var username = prompt("Enter user name");
@@ -223,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     };
 
-    //function to send info when users connects or joins a channel
+    //function to send info when users connects, disconnects or joins a channel
     function connectedUser(username, channel){
         //loging out
             if(localStorage.getItem("username") == null  ){
