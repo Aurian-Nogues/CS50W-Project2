@@ -46,6 +46,14 @@ def connection(data):
     users[user] = channel
     emit("update users", broadcast=True)
 
+#remove user from table when disconnecting
+@socketio.on("user disconnection")
+def disconnection(data):
+    user = data["username"]
+    global users
+    users.pop(user)
+    emit("update users", broadcast=True)
+
 #websocket to update users list
 @app.route("/update", methods=["GET"])
 def update():
@@ -53,6 +61,13 @@ def update():
     users_list = list(users.keys())
     channels_list = list(users.values())
     return jsonify({"users": users_list, "channels": channels_list})
+
+#receive private popup message and broadcast it
+@socketio.on("send private message")
+def receive(data):
+    username = data["username"]
+    message = data["message"]
+    emit("receive private message", {"username": username, "message": message}, broadcast = True)
 
 #websocket to broadcast new messages
 @socketio.on("new message")

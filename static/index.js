@@ -66,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#channels').append(li);
     });
 
+
+
+
     //when new message is announced, add to unordered list if in the right channel
     socket.on('announce message', data => {
         activeChannel = document.getElementById('activeChannel').innerHTML;
@@ -76,6 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#chat').append(li);
         }
     });
+
+    //When private message is broadcasted, display it if appropriate
+    socket.on('receive private message', data =>{
+        user_username = localStorage.getItem('username');
+        message_username = data.username;
+        message_content = data.message;
+        if(user_username == message_username){
+            alert(message_content);
+        }
+    });
+
 
     //when user connects or changes channel, update the table
     socket.on('update users', data => {
@@ -99,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             channels = data.channels;
             for (i=0; i < users.length; ++i){
                 var newRow=document.getElementById('connectedUsers').insertRow();
-                newRow.innerHTML = "<td>"+users[i]+"</td><td>"+channels[i]+"</td>";
+                newRow.innerHTML = '<td class="user">'+users[i]+'</td><td>'+channels[i]+'</td>';
             }
         }   
         //send send request
@@ -109,6 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //when clicking on a channel load the channel
     $(document).on("click",".channel",loadChannel);
+
+    //when clicking on a user send a pop-up message
+    $(document).on("click",".user",popupMessage);
 
     /*login button */
     document.getElementById('login').onclick = login;
@@ -189,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //handles the channel loading when clicking on a channel or loading the page
     function loadChannel(){
-
         //clear chat
         var chat = document.querySelector('#chat');
         if (chat){
@@ -244,19 +260,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     };
 
-    //function to send info when users connects, disconnects or joins a channel
+    //send popup messages to users
+    function popupMessage(){
+        //get reciptient username and message content
+        username = this.innerHTML;
+        const message = prompt("Enter private popup message");
+        //prepare websocket and content
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+        socket.emit('send private message', {'username': username, 'message': message});
+    }
+
+    //Tracks when users connects, disconnects or joins a channel. Stores who's connected and in which channel they are
     function connectedUser(username, channel){
         //loging out
             if(localStorage.getItem("username") == null  ){
-                alert("log out");
-                alert(username);
-        
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+                socket.emit('user disconnection', {'username': username});
+                        
             //logging in
             } else {
                 //prepare websocket and send username + channel
                 var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-                username = username;
-                channel = channel;
                 socket.emit('user connection', {'username': username, 'channel': channel});
             }
         };
