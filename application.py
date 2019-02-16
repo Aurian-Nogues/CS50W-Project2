@@ -30,6 +30,30 @@ def load():
         return jsonify({"success": True, "messages": messages})
 
 
+#check is username already in use
+@app.route("/checkduplicates", methods=["POST"])
+def checkduplicates():
+    username = request.form.get("username")
+    print("")
+    print("here")
+    print(username)
+    print("")
+    global users 
+    if users.get(username) == None:
+        print("")
+        print("here 2")
+        print(users)
+        print("no user")
+        print("")
+        return jsonify({"status": True})
+    else:
+        print("")
+        print("here 2")
+        print("user with name")
+        print("")
+        return jsonify({"status": False})
+
+
 #websocket to add new channel
 @socketio.on("add channel")
 def channel(data):

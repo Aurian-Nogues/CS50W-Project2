@@ -143,12 +143,25 @@ window.addEventListener('beforeunload', () => {
     //handles username storage in localStorage and changes login/logout button, also loads channel and add connected user to table
     function login() {
         
+        //if there is no username in local storage, start asking for login
         if (localStorage.getItem('username') === null) {
             var username = prompt("Enter user name");
+            //prevent user from inputing empty string
             if(!username.match(/\S/)) {
                 alert('Empty user name is not allowed');
                  return false;
+                
             } else {
+                
+                //check here if there is another user with same name
+                status = checkDuplicates(username);
+                alert(status);
+                if (status == "failure") {
+                    alert("user name already taken, please choose another one");
+                    return false;
+                }
+               
+                //write user name in local storage and on html elements, update layout
                 localStorage.setItem('username', username);
                 document.getElementById('username').innerHTML = username;
                 $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
@@ -165,10 +178,6 @@ window.addEventListener('beforeunload', () => {
                         table.removeChild(table.firstChild);
                     }
                 }
-                
-                //update table with connected users
-                connectedUser(username, channel);
-
 
                 //show everything on login
                 document.getElementById('inputBox').style.visibility='visible';
@@ -183,6 +192,8 @@ window.addEventListener('beforeunload', () => {
 
              }
          }
+
+         //if there is already a user name in local storage initiate logout
         else {
             //remove everything from LocalStorage
             username = localStorage.getItem('username');
@@ -308,4 +319,32 @@ window.addEventListener('beforeunload', () => {
                 var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
                 socket.emit('user connection', {'username': username, 'channel': channel});
             }
+        };
+
+
+    //when connecting check if username is already taken
+    function checkDuplicates(username){
+
+        //initialize request
+        const request = new XMLHttpRequest();
+        request.open('POST', '/checkduplicates');  
+
+        // Callback function for when request completes
+        request.onload = () => {
+            const data = JSON.parse(request.responseText);
+            //if username is free return success, if already taken return failure
+            if (data.status){
+                status = "succes";
+                return status;
+            } else {
+                status = "failure";
+                return status;
+            }
+        }      
+        //add data to send with request
+        const data = new FormData();
+        data.append('username', username);
+
+        //send request
+        request.send(data);
         };
