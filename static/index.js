@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //when user connects or changes channel, update the table
     socket.on('update users', data => {
-
         //clear all entries in users table
         var table = document.querySelector('#connectedUsers');
         if (table){
@@ -131,6 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
     /*login button */
     document.getElementById('login').onclick = login;
 
+});
+
+
+//remove from active users when closing window
+window.addEventListener('beforeunload', () => {
+    username = localStorage.getItem('username');
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+    socket.emit('user disconnection', {'username': username});
 });
 
     //handles username storage in localStorage and changes login/logout button, also loads channel and add connected user to table
