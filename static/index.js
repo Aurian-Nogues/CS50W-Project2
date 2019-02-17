@@ -29,8 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
             for (var i = 0;i < items.length; i++){
                 if (items[i].innerHTML == channel){
                     alert("Channel already exist, please choose another name");
-                    return;
+                    return false;
                 }
+                
+                if(!channel.match(/\S/)) {
+                    alert('Empty channel name is not allowed');
+                    return false;
+                }            
             }
             //emit new channel through websocket
             socket.emit('add channel', {'channel': channel});
