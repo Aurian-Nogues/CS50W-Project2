@@ -114,9 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*login button */
     document.getElementById('login').onclick = login;
-
 });
-
 
 //remove from active users when closing window
 window.addEventListener('beforeunload', () => {
@@ -137,16 +135,10 @@ function login() {
         } else {               
             //check here if there is another user with same name
             status = checkDuplicates(username);
-            alert(status);
-            if (status == "failure") {
-                alert("user name already taken, please choose another one");
-                return false;
-            }
-            //execute second part of login procedure
-            finishLogin(username);
+            checkDuplicatesRoutes(status, username);
             }
         }
-        //if there is already a user name in local storage initiate logout
+    //if there is already a user name in local storage initiate logout
     else {
         finishLogout();
     }
@@ -256,7 +248,6 @@ function connectedUser(username, channel){
 
 //when connecting check if username is already taken
 function checkDuplicates(username){
-
     //initialize request
     const request = new XMLHttpRequest();
     request.open('POST', '/checkduplicates');  
@@ -281,6 +272,17 @@ function checkDuplicates(username){
     //send request
     request.send(data);
     };
+
+//choose what to do after checkDuplicates() is executed
+function checkDuplicatesRoutes(status, username){
+    alert(status);
+    if (status == "failure") {
+        alert("user name already taken, please choose another one");
+        return false;
+    }
+    //execute second part of login procedure
+    finishLogin(username);
+};
 
 //shows all elements on the page when logging in
 function showEverything(){
@@ -345,4 +347,5 @@ function finishLogout(){
     //hide everything on logout
     hideEverything();
 };
+
 
