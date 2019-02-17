@@ -10,21 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('login').innerHTML = "Logout";
     } else {
         //hide everything if user not logged in
-        document.getElementById('inputBox').style.visibility='hidden';
-        document.getElementById('channels').style.visibility='hidden';
-        document.getElementById('addChannel').style.visibility='hidden';
-        document.getElementById('chat').style.visibility='hidden';
-        document.getElementById('sendMessage').style.visibility='hidden';
-        document.getElementById('activeChannel').style.visibility='hidden';
-        document.getElementById('channelLabel').style.visibility='hidden';
-        document.getElementById('usersLabel').style.visibility='hidden';
-        document.getElementById('connectedUsers').style.visibility='hidden';
+        hideEverything();
     }
-
         //load channel in local storage or default channel
-        loadChannel();
-    
-        
+        loadChannel();  
+      
     // Connect to websocket
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
@@ -43,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             }
-
             //emit new channel through websocket
             socket.emit('add channel', {'channel': channel});
         }    
@@ -66,9 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#channels').append(li);
     });
 
-
-
-
     //when new message is announced, add to unordered list if in the right channel
     socket.on('announce message', data => {
         activeChannel = document.getElementById('activeChannel').innerHTML;
@@ -90,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(message_sender + ' says: ' + message_content);
         }
     });
-
 
     //when user connects or changes channel, update the table
     socket.on('update users', data => {
@@ -140,212 +125,224 @@ window.addEventListener('beforeunload', () => {
     socket.emit('user disconnection', {'username': username});
 });
 
-    //handles username storage in localStorage and changes login/logout button, also loads channel and add connected user to table
-    function login() {
-        
-        //if there is no username in local storage, start asking for login
-        if (localStorage.getItem('username') === null) {
-            var username = prompt("Enter user name");
-            //prevent user from inputing empty string
-            if(!username.match(/\S/)) {
-                alert('Empty user name is not allowed');
-                 return false;
-                
-            } else {
-                
-                //check here if there is another user with same name
-                status = checkDuplicates(username);
-                alert(status);
-                if (status == "failure") {
-                    alert("user name already taken, please choose another one");
-                    return false;
-                }
-               
-                //write user name in local storage and on html elements, update layout
-                localStorage.setItem('username', username);
-                document.getElementById('username').innerHTML = username;
-                $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
-                document.getElementById('login').innerHTML = "Logout";
-
-                //call functions to load channel and show connected users
-                loadChannel();
-                channel = localStorage.getItem('channel');
-
-                //clear table from previous entries
-                var table = document.querySelector('#connectedUsers');
-                if (table){
-                    while(table.firstChild){
-                        table.removeChild(table.firstChild);
-                    }
-                }
-
-                //show everything on login
-                document.getElementById('inputBox').style.visibility='visible';
-                document.getElementById('channels').style.visibility='visible';
-                document.getElementById('addChannel').style.visibility='visible';
-                document.getElementById('chat').style.visibility='visible';
-                document.getElementById('sendMessage').style.visibility='visible';
-                document.getElementById('activeChannel').style.visibility='visible';
-                document.getElementById('channelLabel').style.visibility='visible';
-                document.getElementById('usersLabel').style.visibility='visible';
-                document.getElementById('connectedUsers').style.visibility='visible';
-
-             }
-         }
-
-         //if there is already a user name in local storage initiate logout
-        else {
-            //remove everything from LocalStorage
-            username = localStorage.getItem('username');
-            localStorage.removeItem('username');
-            localStorage.removeItem('channel');
-            document.getElementById('username').innerHTML = "Login to start chatting";
-            $("#login").removeClass("btn btn-danger").addClass("btn btn-success");
-            document.getElementById('login').innerHTML = "Login";
-
-            //call function to show connected users
-            connectedUser(username);
-
-            //hide everything on logout
-            document.getElementById('inputBox').style.visibility='hidden';
-            document.getElementById('channels').style.visibility='hidden';
-            document.getElementById('addChannel').style.visibility='hidden';
-            document.getElementById('chat').style.visibility='hidden';
-            document.getElementById('sendMessage').style.visibility='hidden';
-            document.getElementById('activeChannel').style.visibility='hidden';
-            document.getElementById('channelLabel').style.visibility='hidden';
-            document.getElementById('usersLabel').style.visibility='hidden';
-            document.getElementById('connectedUsers').style.visibility='hidden';
+//handles username storage in localStorage and changes login/logout button, also loads channel and add connected user to table
+function login() {
+    //if there is no username in local storage, start asking for login
+    if (localStorage.getItem('username') === null) {
+        var username = prompt("Enter user name");
+        //prevent user from inputing empty string
+        if(!username.match(/\S/)) {
+            alert('Empty user name is not allowed');
+                return false;              
+        } else {               
+            //check here if there is another user with same name
+            status = checkDuplicates(username);
+            alert(status);
+            if (status == "failure") {
+                alert("user name already taken, please choose another one");
+                return false;
             }
-        };
-
-    //broadcast message through websocket
-    function sendMessage() {
-        //prepare websocket
-        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-        const message = document.querySelector('#newMessage').value;
-        username = localStorage.getItem('username');
-        timestamp = new Date().toLocaleTimeString();
-    
-        //put message together with timestamp and channel and send through websocket
-        const contents = `${timestamp} || ${username}: ${message}`;
-        const channel = document.getElementById('activeChannel').innerHTML;
-        document.querySelector('#newMessage').value = ""
-        socket.emit('new message', {'message': contents, 'channel': channel});
-    };
-
-    //handles the channel loading when clicking on a channel or loading the page
-    function loadChannel(){
-        //clear chat
-        var chat = document.querySelector('#chat');
-        if (chat){
-            while(chat.firstChild){
-                chat.removeChild(chat.firstChild);
+            //execute second part of login procedure
+            finishLogin(username);
             }
         }
-        //get channel from click (if clicked on channel) or localStorage (if page just loaded)
-        if (this.innerHTML != null){
-            channel = this.innerHTML;
-            localStorage.setItem('channel', channel);
-        } else {
-            //if nothing in local storage load General by default
-            if (localStorage.getItem('channel') != null){
-                channel = localStorage.getItem('channel');
-            } else {
-                channel = "General";
-                localStorage.setItem('channel', channel);
-            }
-        }
-        //display channel on page
-        document.getElementById('activeChannel').innerHTML = channel;
-       
-        //broadcast channel change to websocket
-        username = localStorage.getItem('username');
-        connectedUser(username, channel);
+        //if there is already a user name in local storage initiate logout
+    else {
+        finishLogout();
+    }
+};
 
-        //initialize request
-        const request = new XMLHttpRequest();
-        request.open('POST', '/load');  
+//broadcast message through websocket
+function sendMessage() {
+    //prepare websocket
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+    const message = document.querySelector('#newMessage').value;
+    username = localStorage.getItem('username');
+    timestamp = new Date().toLocaleTimeString();
 
-        // Callback function for when request completes
-        request.onload = () => {
-            const data = JSON.parse(request.responseText);
-            if (data.success){
-                //extract JSON from request
-                messages = data.messages;
-                //append server messages in chat window
-                for (i = 0; i < messages.length; ++i){
-                    const li = document.createElement('li');
-                    li.innerHTML = messages[i]
-                    document.querySelector('#chat').append(li);
-                }
-            }
-        }      
-        //add data to send with request
-        const data = new FormData();
-        data.append('channel', channel);
+    //put message together with timestamp and channel and send through websocket
+    const contents = `${timestamp} || ${username}: ${message}`;
+    const channel = document.getElementById('activeChannel').innerHTML;
+    document.querySelector('#newMessage').value = ""
+    socket.emit('new message', {'message': contents, 'channel': channel});
+};
 
-        //send request
-        request.send(data);
-        return false;
-    };
-
-    //send popup messages to users
-    function popupMessage(){
-        //get reciptient username and message content
-        username = this.innerHTML;
-        const message = prompt("Enter private popup message");
-        sender = localStorage.getItem("username");
-
-        //check that message is not empty
-        if(!message.match(/\S/)) {
-             return false;
-        } else {
-            //prepare websocket and content
-            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-            socket.emit('send private message', {'username': username, 'message': message, "sender": sender});
+//handles the channel loading when clicking on a channel or loading the page
+function loadChannel(){
+    //clear chat
+    var chat = document.querySelector('#chat');
+    if (chat){
+        while(chat.firstChild){
+            chat.removeChild(chat.firstChild);
         }
     }
-    //Tracks when users connects, disconnects or joins a channel. Stores who's connected and in which channel they are
-    function connectedUser(username, channel){
-        //loging out
-            if(localStorage.getItem("username") == null  ){
-                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-                socket.emit('user disconnection', {'username': username});
-                        
-            //logging in
-            } else {
-                //prepare websocket and send username + channel
-                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-                socket.emit('user connection', {'username': username, 'channel': channel});
+    //get channel from click (if clicked on channel) or localStorage (if page just loaded)
+    if (this.innerHTML != null){
+        channel = this.innerHTML;
+        localStorage.setItem('channel', channel);
+    } else {
+        //if nothing in local storage load General by default
+        if (localStorage.getItem('channel') != null){
+            channel = localStorage.getItem('channel');
+        } else {
+            channel = "General";
+            localStorage.setItem('channel', channel);
+        }
+    }
+    //display channel on page
+    document.getElementById('activeChannel').innerHTML = channel;
+    
+    //broadcast channel change to websocket
+    username = localStorage.getItem('username');
+    connectedUser(username, channel);
+
+    //initialize request
+    const request = new XMLHttpRequest();
+    request.open('POST', '/load');  
+
+    // Callback function for when request completes
+    request.onload = () => {
+        const data = JSON.parse(request.responseText);
+        if (data.success){
+            //extract JSON from request
+            messages = data.messages;
+            //append server messages in chat window
+            for (i = 0; i < messages.length; ++i){
+                const li = document.createElement('li');
+                li.innerHTML = messages[i]
+                document.querySelector('#chat').append(li);
             }
-        };
+        }
+    }      
+    //add data to send with request
+    const data = new FormData();
+    data.append('channel', channel);
 
+    //send request
+    request.send(data);
+    return false;
+};
 
-    //when connecting check if username is already taken
-    function checkDuplicates(username){
+//send popup messages to users
+function popupMessage(){
+    //get reciptient username and message content
+    username = this.innerHTML;
+    const message = prompt("Enter private popup message");
+    sender = localStorage.getItem("username");
 
-        //initialize request
-        const request = new XMLHttpRequest();
-        request.open('POST', '/checkduplicates');  
+    //check that message is not empty
+    if(!message.match(/\S/)) {
+            return false;
+    } else {
+        //prepare websocket and content
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+        socket.emit('send private message', {'username': username, 'message': message, "sender": sender});
+    }
+}
+//Tracks when users connects, disconnects or joins a channel. Stores who's connected and in which channel they are
+function connectedUser(username, channel){
+    //loging out
+        if(localStorage.getItem("username") == null  ){
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+            socket.emit('user disconnection', {'username': username});
+                    
+        //logging in
+        } else {
+            //prepare websocket and send username + channel
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+            socket.emit('user connection', {'username': username, 'channel': channel});
+        }
+    };
 
-        // Callback function for when request completes
-        request.onload = () => {
-            const data = JSON.parse(request.responseText);
-            //if username is free return success, if already taken return failure
-            status = data.status;
-            if (status == "success"){
-                alert(status);
-                return status;
-            } else {
-                alert(status);
-                return status;
-            }
-        }      
-        //add data to send with request
-        const data = new FormData();
-        data.append('username', username);
+//when connecting check if username is already taken
+function checkDuplicates(username){
 
-        //send request
-        request.send(data);
-        };
+    //initialize request
+    const request = new XMLHttpRequest();
+    request.open('POST', '/checkduplicates');  
+
+    // Callback function for when request completes
+    request.onload = () => {
+        const data = JSON.parse(request.responseText);
+        //if username is free return success, if already taken return failure
+        status = data.status;
+        if (status == "success"){
+            alert(status);
+            return status;
+        } else {
+            alert(status);
+            return status;
+        }
+    }      
+    //add data to send with request
+    const data = new FormData();
+    data.append('username', username);
+
+    //send request
+    request.send(data);
+    };
+
+//shows all elements on the page when logging in
+function showEverything(){
+    document.getElementById('inputBox').style.visibility='visible';
+    document.getElementById('channels').style.visibility='visible';
+    document.getElementById('addChannel').style.visibility='visible';
+    document.getElementById('chat').style.visibility='visible';
+    document.getElementById('sendMessage').style.visibility='visible';
+    document.getElementById('activeChannel').style.visibility='visible';
+    document.getElementById('channelLabel').style.visibility='visible';
+    document.getElementById('usersLabel').style.visibility='visible';
+    document.getElementById('connectedUsers').style.visibility='visible';
+};
+
+//hide everything on logout
+function hideEverything(){
+    document.getElementById('inputBox').style.visibility='hidden';
+    document.getElementById('channels').style.visibility='hidden';
+    document.getElementById('addChannel').style.visibility='hidden';
+    document.getElementById('chat').style.visibility='hidden';
+    document.getElementById('sendMessage').style.visibility='hidden';
+    document.getElementById('activeChannel').style.visibility='hidden';
+    document.getElementById('channelLabel').style.visibility='hidden';
+    document.getElementById('usersLabel').style.visibility='hidden';
+    document.getElementById('connectedUsers').style.visibility='hidden';
+};
+
+//second part of login process to be executed if no duplicates were found
+function finishLogin(username){
+    //write user name in local storage and on html elements, update layout
+    localStorage.setItem('username', username);
+    document.getElementById('username').innerHTML = username;
+    $("#login").removeClass("btn btn-success").addClass("btn btn-danger");
+    document.getElementById('login').innerHTML = "Logout";
+
+    //call functions to load channel and show connected users
+    loadChannel();
+    channel = localStorage.getItem('channel');
+
+    //clear table from previous entries
+    var table = document.querySelector('#connectedUsers');
+    if (table){
+        while(table.firstChild){
+            table.removeChild(table.firstChild);
+        }
+    }
+    //show everything on login
+    showEverything();
+};
+
+//second part of login process, gets executed if user is loging out
+function finishLogout(){
+    //remove everything from LocalStorage
+    username = localStorage.getItem('username');
+    localStorage.removeItem('username');
+    localStorage.removeItem('channel');
+    document.getElementById('username').innerHTML = "Login to start chatting";
+    $("#login").removeClass("btn btn-danger").addClass("btn btn-success");
+    document.getElementById('login').innerHTML = "Login";
+    //call function to show connected users
+    connectedUser(username);
+    //hide everything on logout
+    hideEverything();
+};
+
