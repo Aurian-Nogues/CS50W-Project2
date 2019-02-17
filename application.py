@@ -29,41 +29,17 @@ def load():
         messages = conversations[channel]
         return jsonify({"success": True, "messages": messages})
 
-
 #check is username already in use
 @app.route("/checkduplicates", methods=["POST"])
 def checkduplicates():
-    print("")
-    print("logging in")
     username = request.form.get("username")
-    print(username)
-    #print("")
-    #print("here")
-    #print(username)
-    #print("")
     global users 
-
     if username in users:
-        #print("")
-        #print("here 2")
-        #print(users)
-        #print(username)
-        print(users)
-        print("user with name")
-        #print("")
         status = "failure"
-        print(status)
         return jsonify({"status": status})
     else:
-        #print("")
-        #print("here 2")
-        print(users)    
-        print("no user")
-        #print("")
         status = "success"
-        print(status)
         return jsonify({"status": status})
-
 
 #websocket to add new channel
 @socketio.on("add channel")
@@ -86,12 +62,7 @@ def connection(data):
 def disconnection(data):
     user = data["username"]
     global users
-    print("")
-    print("disconnect")
-    print(users)
     users.pop(user)
-    print("")
-    print(users)
     emit("update users", broadcast=True)
 
 #websocket to update users list
@@ -122,5 +93,3 @@ def message(data):
         del conversations[channel][0]
 
     emit("announce message", {"message": message, "channel": channel}, broadcast=True)
-        
-

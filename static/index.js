@@ -1,4 +1,3 @@
-
 //////////////Wrapper for to be executed only when page finished loading
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -104,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //send send request
         request.send();
         return false;
+        
 
 
     });
@@ -116,14 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*login button */
     document.getElementById('login').onclick = login;
-
-
-        /////////////////////////////////////////////
-        test();
-        /////////////////////////////////////////////
-
-
-
 });
 
 //remove from active users when closing window
@@ -142,16 +134,13 @@ function login() {
         if(!username.match(/\S/)) {
             alert('Empty user name is not allowed');
                 return false;              
-        } else {               
-            //check here if there is another user with same name
-
-            //working but asynchronous probleme because checkduplicates has callback
-            status = checkDuplicates(username);
-            checkDuplicatesRoutes(status, username);
-            }
+        } else {                      
+            checkDuplicates(username).then((status) => {
+            checkDuplicatesRoutes(status, username)
+            })
         }
     //if there is already a user name in local storage initiate logout
-    else {
+    } else {
         finishLogout();
     }
 };
@@ -256,39 +245,33 @@ function connectedUser(username, channel){
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
             socket.emit('user connection', {'username': username, 'channel': channel});
         }
-    };
+};
 
-//when connecting check if username is already taken
 function checkDuplicates(username){
-    //initialize request
-    const request = new XMLHttpRequest();
-    request.open('POST', '/checkduplicates');  
-
-    // Callback function for when request completes
-    request.onload = () => {
-        const data = JSON.parse(request.responseText);
-        //if username is free return success, if already taken return failure
-        status = data.status;
-        if (status == "success"){
-            alert(status);
-            return status;
-        } else {
-            alert(status);
-            return status;
+     return new Promise((resolve, reject) => {
+       //initialize request
+        const request = new XMLHttpRequest();
+        request.open('POST', '/checkduplicates');  
+    
+        // Callback function for when request completes
+        request.onload = () => {
+            const data = JSON.parse(request.responseText);
+            //if username is free return success, if already taken return failure
+            status = data.status;
+            resolve(status);
         }
-    }      
-    //add data to send with request
-    const data = new FormData();
-    data.append('username', username);
 
-    //send request
-    request.send(data);
-    };
-
-//choose what to do after checkDuplicates() is executed
+        //add data to send with request
+        const data = new FormData();
+        data.append('username', username);
+    
+        //send request
+        request.send(data);
+    })
+};
+    
 function checkDuplicatesRoutes(status, username){
-    alert(status);
-    if (status == "failure") {
+     if (status == "failure") {
         alert("user name already taken, please choose another one");
         return false;
     }
@@ -358,33 +341,4 @@ function finishLogout(){
     connectedUser(username);
     //hide everything on logout
     hideEverything();
-};
-
-
-
-
-function test(){
-    alert("in test");
-
-    let p1 = new Promise((resolve, reject) => {
-        let x = test2();
-        resolve(x);
-    })
-
-    p1.then((ex) => {
-        y="bite";
-        test3(ex, y);
-    });
-
-
-};
-
-function test2(){
-    x=5;
-    return x;
-};
-
-function test3(ex, y){
-    alert(ex);
-    alert(y);
 };
