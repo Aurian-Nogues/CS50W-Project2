@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         //send send request
         request.send();
         return false;
+
+
     });
 
     //when clicking on a channel load the channel
@@ -114,6 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*login button */
     document.getElementById('login').onclick = login;
+
+
+        /////////////////////////////////////////////
+        test();
+        /////////////////////////////////////////////
+
+
+
 });
 
 //remove from active users when closing window
@@ -134,6 +144,8 @@ function login() {
                 return false;              
         } else {               
             //check here if there is another user with same name
+
+            //working but asynchronous probleme because checkduplicates has callback
             status = checkDuplicates(username);
             checkDuplicatesRoutes(status, username);
             }
@@ -349,3 +361,30 @@ function finishLogout(){
 };
 
 
+
+
+function test(){
+    alert("in test");
+
+    let p1 = new Promise((resolve, reject) => {
+        let x = test2();
+        resolve(x);
+    })
+
+    p1.then((ex) => {
+        y="bite";
+        test3(ex, y);
+    });
+
+
+};
+
+function test2(){
+    x=5;
+    return x;
+};
+
+function test3(ex, y){
+    alert(ex);
+    alert(y);
+};
