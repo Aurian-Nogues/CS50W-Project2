@@ -108,9 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         //send send request
         request.send();
         return false;
-        
-
-
     });
 
     //when clicking on a channel load the channel
@@ -139,7 +136,8 @@ function login() {
         if(!username.match(/\S/)) {
             alert('Empty user name is not allowed');
                 return false;              
-        } else {                      
+        } else {         
+            //checkDuplicates is asynchronous, this bit of code makes sure the ajax response is received before it is used in checkDuplicatesRoutes         
             checkDuplicates(username).then((status) => {
             checkDuplicatesRoutes(status, username)
             })
